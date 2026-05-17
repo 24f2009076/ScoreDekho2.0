@@ -1,29 +1,25 @@
-from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session 
-from controllers.database import get_db
-import controllers.models as models
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from controllers.database import engine, get_db
+from controllers.models import Base, User
+from controllers.schemas import UserResponse
+from controllers.auth import router as auth_router, oauth2_scheme, decode_token, get_current_user
+from controllers.seed import seed_users
+
+Base.metadata.create_all(bind=engine)
+seed_users()
 
 app = FastAPI(title="ScoreDekho API")
+
+app.include_router(auth_router)
+
 
 @app.get("/")
 def home():
     return {"message": "Welcome to the ScoreDekho API! Explore the endpoints to manage teams and players."}
 
 
-@app.get("/players")
-def get_all_players(db: Session = Depends(get_db)):
-    # Query all players from the database
-    players = db.query(models.Player).all()
-    
-    # Format the data cleanly into a list of dictionaries for our Vue frontend
-    return [
-        {
-            "id": p.id,
-            "name": p.name,
-            "role": p.role,
-            "base_price": p.base_price,
-            "is_sold": p.is_sold,
-            "team_id": p.team_id
-        }
-        for p in players
-    ]
+@app.get("/me", response_model=UserResponse)
+def me(current_user : User = Depends(get_current_user)):
+    return current_user

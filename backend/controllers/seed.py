@@ -1,33 +1,42 @@
-from backend.controllers.database import engine, Base, SessionLocal
-import backend.controllers.models as models
+from sqlalchemy import text
+
+from controllers.database import engine, Base, SessionLocal
+from controllers.models import User
+from controllers.auth import hash_password
+
 
 def seed_database():
     print("🔄 Connecting to Supabase, dropping old tables, and creating clean ones...")
-    # This safely communicates our models.py structure directly to Supabase
-    Base.metadata.drop_all(bind=engine)
+    # Recreate the schema so stale tables / foreign keys from older models do not block seeding.
+    with engine.begin() as connection:
+        connection.execute(text("DROP SCHEMA IF EXISTS public CASCADE"))
+        connection.execute(text("CREATE SCHEMA public"))
+
     Base.metadata.create_all(bind=engine)
 
     db = SessionLocal()
     try:
-        # === MOCK DATA INSERTION COMMENTED OUT ===
-        print("🏏 Adding initial KMDA Teams...")
-        team1 = models.Team(name="KMDA Warriors", budget=100000)
-        team2 = models.Team(name="Stadium Titans", budget=100000)
-        db.add_all([team1, team2])
-        db.commit() # Commit to generate IDs for relationships
-
-        print("🏃 Adding initial Players for the Auction...")
-        player1 = models.Player(name="Amit Sharma", role="Batsman", base_price=15000, team_id=team1.id, is_sold=True)
-        player2 = models.Player(name="Rohit Verma", role="Bowler", base_price=12000)
-        player3 = models.Player(name="Vikram Singh", role="All-Rounder", base_price=20000)
-        db.add_all([player1, player2, player3])
-        db.commit()
-        # =========================================
-        
         print("✅ Database tables successfully built and initialized (Empty)!")
     except Exception as e:
         print(f"❌ Error occurred: {e}")
         db.rollback()
+    finally:
+        db.close()
+
+def seed_users():
+    db = SessionLocal()
+    try:
+        if db.query(User).first():
+            print("Users already seeded.")
+            return
+
+        users = [
+            User(email="admin@example.com", full_name="Admin User", password_hash=hash_password("admin123")),
+            User(email="alice@example.com", full_name="Alice Doe", password_hash=hash_password("alice123")),
+        ]
+        db.add_all(users)
+        db.commit()
+        print("Seeded users successfully.")
     finally:
         db.close()
         

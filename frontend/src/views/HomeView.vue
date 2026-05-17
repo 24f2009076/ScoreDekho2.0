@@ -150,6 +150,9 @@ onMounted(() => {
         min-height: 80vh;
         width: 100%;
         padding: 3rem 1rem;
+        position: relative;
+
+        position: relative;
 
         background: radial-gradient(circle at top, rgba(30, 30, 30, 0.4) 0%, rgba(10, 13, 18, 1) 100%);
         /* border: 2px solid red; */
@@ -162,8 +165,8 @@ onMounted(() => {
         left: 50%;
         transform: translateX(-50%);
 
-        width: 900px;
-        height: 900px;
+        width: min(900px, 90vw);
+        height: min(900px, 90vw);
 
         border-radius: 50%;
 
@@ -450,7 +453,7 @@ onMounted(() => {
          /* border: 2px solid red; */
         position: relative;
         width: 100%;
-        padding: 3rem 9rem;
+        padding: 3rem 1.5rem;
     }
 
     .card {
@@ -463,7 +466,7 @@ onMounted(() => {
         background: rgba(34, 34, 34, 0.4);
         border: 1px solid rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(12px);
-        width: 100%;
+        width: 80%;
          /* border: 2px solid red; */
     }
 
@@ -529,6 +532,6 @@ onMounted(() => {
         .btn { padding: 0.6rem 1rem; }
         .feature-card__media { min-height: 10rem; }
         .contact-section { padding: 3rem 1rem; margin-top: -5rem; }
-        .card { padding: 2rem; }
+        .card { padding: 2rem; width: 100%; }
     }
 </style>
