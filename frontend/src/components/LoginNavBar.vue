@@ -8,10 +8,7 @@
       <RouterLink to="/" class="nav-link">Home</RouterLink>
       <RouterLink to="/tournaments" class="nav-link">Tournaments</RouterLink>
     </div>
-    <div class="nav-login">
-      <RouterLink to="/login" class="login">Login</RouterLink>
-      <RouterLink to="/register" class="get-started">Get Started</RouterLink>
-    </div>
+    
   </nav>
 </template>
 
@@ -29,6 +26,8 @@ import { RouterLink } from 'vue-router'
       /* background-color: #000; */
       color: #fff;
       padding: 1rem 0.5rem;
+
+      /* border: 2px dashed red; */
     }
 
     .blur {
@@ -54,7 +53,7 @@ import { RouterLink } from 'vue-router'
       display: flex;
       gap: 1.5rem;
       font-size: 1.05rem;
-      padding: 0 2rem;
+      padding: 0.65rem 2rem;
       align-items: center;
       flex: 1;
       /* border: 2px solid red; */
@@ -91,7 +90,7 @@ import { RouterLink } from 'vue-router'
         font-size: 1.05rem;
         padding: 0 2rem;
         align-items: center;
-        /* border: 2px solid green; */
+        border: 2px solid green;
     }
 
     .login {
@@ -118,9 +117,9 @@ import { RouterLink } from 'vue-router'
 
     @media (max-width: 720px) {
       .nav-menu { display: none; }
-      .nav-login .get-started { display: none; }
+      .nav-login .login { display: none; }
       .nav-login { padding: 0 0.5rem; }
-      .nav-login .get-started { padding: 0.5rem 1rem; }
+      .get-started { padding: 0.5rem 1rem; }
     }
 
 </style>

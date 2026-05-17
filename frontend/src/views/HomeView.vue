@@ -9,7 +9,7 @@
                 Elevate your league with professional-grade scoring, real-time analytics, and seamless management tools designed for the modern game.
             </div>
             <div class="btn-panel">
-                <RouterLink to="/" class="btn get-started">Get Started</RouterLink>
+                <RouterLink to="/register" class="btn get-started">Get Started</RouterLink>
                 <RouterLink to="/" class="btn live-tournaments">Live Tournaments</RouterLink>
             </div>
         </div>
@@ -89,7 +89,7 @@
                     Join over 5+ tournament organizers who have scaled their events with ScoreDekho's technical precision. 
                 </div>
                 <div class="btn-panel">
-                    <RouterLink to="/" class="btn get-started">Get Started</RouterLink>
+                    <RouterLink to="/register" class="btn get-started">Get Started</RouterLink>
                     <RouterLink to="/" class="btn live-tournaments">Live Tournaments</RouterLink>
                 </div>
             </div>
@@ -237,7 +237,7 @@ onMounted(() => {
         top: 100%;
         left: -10%;
         width: 0%;
-        aspect-ratio: 0.5;
+        aspect-ratio: 1;
         background: #40e436;
         transform: translate(0%, -50%);
         border-radius: 50%;

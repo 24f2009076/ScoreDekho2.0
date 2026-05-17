@@ -1,11 +1,19 @@
 <script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import NavBar from './components/NavBar.vue'
+import LoginNavBar from './components/LoginNavBar.vue'
+
+const route = useRoute()
+const showNavBar = computed(() => !route.meta?.hideNavBar)
+const type = computed(() => route.meta?.type || 'default')
 </script>
 
 <template>
   <div class="app">
-    <div class="nav-bar">
-      <NavBar />
+    <div v-if="showNavBar" class="nav-bar">
+      <NavBar v-if="type === 1"/>
+      <LoginNavBar v-if="type === 2"/>
     </div>
 
     <div class="view-container">

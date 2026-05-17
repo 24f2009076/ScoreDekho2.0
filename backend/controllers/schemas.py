@@ -18,7 +18,7 @@ class UserResponse(BaseModel):
 
 class Token(BaseModel):
     access_token: str
-    token_type: str
+    full_name: str
 
 class LoginRequest(BaseModel):
     full_name: str

@@ -3,6 +3,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from controllers.database import get_db
 from controllers.models import User
@@ -46,7 +47,7 @@ def get_current_user(
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-    user = db.query(User).filter(User.full_name == payload.get("sub")).first()
+    user = db.query(User).filter(func.lower(User.full_name) == payload.get("sub").lower()).first()
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
     return user
@@ -75,7 +76,7 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
 # ── Login ─────────────────────────────────────────────────
 @router.post("/login", response_model=Token)
 def login(credentials: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.full_name == credentials.full_name).first()
+    user = db.query(User).filter(func.lower(User.full_name) == credentials.full_name.lower()).first()
     if not user or not verify_password(credentials.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -86,5 +87,5 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
         data={"sub": user.full_name},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     )
-    return {"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "full_name": user.full_name }
 
