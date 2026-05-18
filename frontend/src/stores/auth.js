@@ -20,15 +20,13 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    function clearAuth() {
+    function logOut() {
         token.value = ''
-        role.value = ''
-        username.value = ''
+        full_name.value = ''
 
         localStorage.removeItem('token')
-        localStorage.removeItem('role')
-        localStorage.removeItem('username')
+        localStorage.removeItem('full_name')
     }
 
-    return { token, full_name, isLoggedIn, setAuth, clearAuth };
+    return { token, full_name, isLoggedIn, setAuth, logOut };
 })

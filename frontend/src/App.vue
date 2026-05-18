@@ -1,19 +1,28 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuthStore } from './stores/auth'
 import NavBar from './components/NavBar.vue'
 import LoginNavBar from './components/LoginNavBar.vue'
+import DashboardNavBar from './components/DashboardNavBar.vue'
 
 const route = useRoute()
+const authStore = useAuthStore()
 const showNavBar = computed(() => !route.meta?.hideNavBar)
 const type = computed(() => route.meta?.type || 'default')
+const isAuthenticated = computed(() => authStore.isLoggedIn)
 </script>
 
 <template>
   <div class="app">
     <div v-if="showNavBar" class="nav-bar">
-      <NavBar v-if="type === 1"/>
-      <LoginNavBar v-if="type === 2"/>
+      <div v-if="isAuthenticated">
+        <DashboardNavBar />
+      </div>
+      <div v-else>
+        <NavBar v-if="type === 1"/>
+        <LoginNavBar v-if="type === 2"/>
+      </div>
     </div>
 
     <div class="view-container">

@@ -6,6 +6,7 @@ from controllers.database import engine, get_db
 from controllers.models import Base, User
 from controllers.schemas import UserResponse
 from controllers.auth import router as auth_router, oauth2_scheme, decode_token, get_current_user
+from controllers.routes import router as api_router
 from controllers.seed import seed_users
 
 Base.metadata.create_all(bind=engine)
@@ -27,6 +28,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(api_router)
 
 
 @app.get("/")

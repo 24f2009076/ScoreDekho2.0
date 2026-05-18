@@ -40,7 +40,7 @@ const router = createRouter({
       component: DashboardView,
       meta: {
         hideNavBar: false,
-        type: 2
+        type: 3
       }
     }
   ],

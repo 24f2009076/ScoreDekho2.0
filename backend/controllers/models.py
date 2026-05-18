@@ -144,6 +144,7 @@ class User(Base):
 
     # Audit trail — players this user added
     players_added = relationship("Player", back_populates="created_by_user")
+    tournaments_created = relationship("Tournament", back_populates="created_by_user")
 
 
 # ---------------------------------------------------------------------------
@@ -159,11 +160,11 @@ class Player(Base):
 
     id            = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     full_name     = Column(String(120), nullable=False)
-    housing_unit  = Column(String(60), nullable=True)
+    # housing_unit  = Column(String(60), nullable=True)
     phone         = Column(String(20), nullable=True)
     skill_type    = Column(Enum(SkillType), nullable=False)
-    batting_style = Column(Enum(BattingStyle), nullable=True)
-    bowling_style = Column(Enum(BowlingStyle), nullable=True, default=BowlingStyle.none)
+    # batting_style = Column(Enum(BattingStyle), nullable=True)
+    # bowling_style = Column(Enum(BowlingStyle), nullable=True, default=BowlingStyle.none)
 
     # Audit — who added this player
     created_by    = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
@@ -190,9 +191,10 @@ class Tournament(Base):
 
     id             = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name           = Column(String(120), nullable=False)
+    created_by     = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     season_year    = Column(String(9), nullable=False)   # e.g. "2025" or "2024-25"
     status         = Column(Enum(TournamentStatus), nullable=False, default=TournamentStatus.draft)
-    overs_per_side = Column(Integer, nullable=False, default=20)
+    # overs_per_side = Column(Integer, nullable=False, default=20)
 
     # Auction config — same purse for every team in this tournament
     team_purse     = Column(Integer, nullable=False, default=100000)
@@ -209,6 +211,7 @@ class Tournament(Base):
     auction_group_configs = relationship("AuctionGroupConfig", back_populates="tournament")
     tournament_players = relationship("TournamentPlayer", back_populates="tournament")
     matches            = relationship("Match", back_populates="tournament")
+    created_by_user = relationship("User", back_populates="tournaments_created")
 
 
 class Team(Base):
@@ -221,7 +224,7 @@ class Team(Base):
     id            = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tournament_id = Column(UUID(as_uuid=True), ForeignKey("tournaments.id"), nullable=False)
     name          = Column(String(80), nullable=False)
-    home_color    = Column(String(7), nullable=True)   # Hex color e.g. "#FF6D00"
+    # home_color    = Column(String(7), nullable=True)   # Hex color e.g. "#FF6D00"
 
     # Relationships
     tournament         = relationship("Tournament", back_populates="teams")
