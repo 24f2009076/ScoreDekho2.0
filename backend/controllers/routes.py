@@ -15,10 +15,16 @@ router = APIRouter(prefix="/api", tags=["api"])
 # TOURNAMENT ROUTES
 # ──────────────────────────────────────────────────────────────
 
-@router.get('/tournaments', response_model=list[TournamentResponse])
+@router.get('/tournaments')
 def get_tournaments(currentUser : User = Depends(get_current_user), db : Session = Depends(get_db)):
-    tournaments = db.query(Tournament).filter(Tournament.created_by == currentUser.id).all()
-    return tournaments
+    active_tournaments = db.query(Tournament).filter(Tournament.created_by == currentUser.id, Tournament.status == 'ongoing').all()
+    upcoming_tournaments = db.query(Tournament).filter(Tournament.created_by == currentUser.id,Tournament.status.in_(['draft', 'auction'])).all()    
+    return {
+        "active": active_tournaments,
+        "active_count": len(active_tournaments),
+        "upcoming": upcoming_tournaments,
+        "upcoming_count": len(upcoming_tournaments)
+    }
 
 @router.get('/tournaments/{tournament_id}', response_model=TournamentResponse)
 def get_tournament(tournament_id: UUID, currentUser : User = Depends(get_current_user), db : Session = Depends(get_db)):
@@ -50,7 +56,23 @@ def create_tournament(tournament_data : TournamentCreate, currentUser : User = D
 
 @router.get('/matches/live')
 def get_live_matches(currentUser : User = Depends(get_current_user), db : Session = Depends(get_db)):
-    live_matches = db.query(Match).filter(Match.status == MatchState.live).all()
+    live_matches = db.query(Match).filter(Match.status == "live").all()
     my_live_matches = [match for match in live_matches if match.tournament_id in [t.id for t in db.query(Tournament).filter(Tournament.created_by == currentUser.id).all()]]
-    return my_live_matches
+    return {
+        "live_matches": my_live_matches,
+        "count": len(my_live_matches)
+    }
+    
+
+# ──────────────────────────────────────────────────────────────
+# PLAYERS API
+# ──────────────────────────────────────────────────────────────
+
+@router.get('/players')
+def get_players(currentUser : User = Depends(get_current_user), db : Session = Depends(get_db)):
+    players = db.query(Player).filter(Player.created_by == currentUser.id).all()
+    return {
+        "players": players,
+        "count": len(players)
+    }
 

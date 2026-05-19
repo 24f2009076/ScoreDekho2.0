@@ -7,7 +7,9 @@
     <div class="nav-login">
       <div class="login">
         <img src="/icons/user.png" alt="profile-pic" class="profile-pic">
-        {{ full_name }}
+        <span class="name">
+          {{ full_name }}
+        </span>
       </div>
 
       <div class="options">
@@ -22,7 +24,7 @@
 import { RouterLink } from 'vue-router'
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
-import { onMounted } from 'vue';
+import { onMounted, onBeforeUnmount } from 'vue';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -38,6 +40,31 @@ onMounted(() => {
       options.style.display = 'flex';
     }
   });
+  
+  const onDocMouseDown = (e) => {
+    const options = document.querySelector('.options');
+    const navLogin = document.querySelector('.nav-login');
+    if (!options) return;
+    // if options is open and the click is outside options and outside nav-login, close it
+    if (options.style.display === 'flex') {
+      if (!options.contains(e.target) && !navLogin.contains(e.target)) {
+        options.style.display = 'none';
+      }
+    }
+  };
+
+  document.addEventListener('mousedown', onDocMouseDown);
+
+  // store the handler so it can be removed on unmount
+  window.__dashboard_nav_mousedown = onDocMouseDown;
+  
+  
+
+onBeforeUnmount(() => {
+  const handler = window.__dashboard_nav_mousedown;
+  if (handler) document.removeEventListener('mousedown', handler);
+  delete window.__dashboard_nav_mousedown;
+});
 });
 
 function logout() {
@@ -194,10 +221,9 @@ function logout() {
     display: none;
   }
 
-  .nav-login .login {
+  .nav-login .name {
     display: none;
   }
-
   .nav-login {
     padding: 0 0.5rem;
   }

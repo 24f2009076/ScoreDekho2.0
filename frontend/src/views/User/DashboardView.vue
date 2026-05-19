@@ -8,22 +8,22 @@
             <div class="cards">
 
                 <div class="small-card">
-                    <div class="big"> 10 </div>
+                    <div class="big"> {{ active_torunament_count }} </div>
                     <div class="small"> ACTIVE TOURNAMENTS </div>
                 </div>
 
                 <div class="small-card">
-                    <div class="big"> 5 </div>
+                    <div class="big"> {{ players_count }} </div>
                     <div class="small"> PLAYERS </div>
                 </div>
 
                 <div class="small-card">
-                    <div class="big"> 5 </div>
+                    <div class="big"> {{ live_matches_count }} </div>
                     <div class="small"> LIVE MATCHES </div>
                 </div>
 
                 <div class="small-card">
-                    <div class="big"> 5 </div>
+                    <div class="big"> {{ upcoming_tournament_count }} </div>
                     <div class="small"> UPCOMING TOURNAMENTS </div>
                 </div>
 
@@ -97,10 +97,87 @@
 <script setup>
 import SideBar from '@/components/SideBar.vue'
 import { useAuthStore } from '@/stores/auth'
+import { onMounted, ref } from 'vue'
 
 const authStore = useAuthStore()
 const full_name = authStore.full_name.split(' ')[0] || 'User'
 
+const active_torunament_count = ref(-1);
+const upcoming_tournament_count = ref(-1);
+const live_matches_count = ref(-1);
+const players_count = ref(-1);
+
+async function fetchTournamentData() {
+    try {
+        const response = await fetch('http://localhost:8000/api/tournaments/', 
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authStore.token}`
+                }
+            }
+        );
+        const data = await response.json();
+        // console.log(data);
+        active_torunament_count.value = data.active_count;
+        upcoming_tournament_count.value = data.upcoming_count;
+    } catch (error) {
+        console.error('Error fetching tournament data:', error);
+    }
+}
+
+async function fetchMatchdata() {
+    try {
+        const response = await fetch('http://localhost:8000/api/matches/live',
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'applications/json',
+                    'Authorization': `Bearer ${authStore.token}`
+                }
+            }
+        )
+
+        const data = await response.json();
+        live_matches_count.value = data.count;
+
+    } catch (error) {
+        console.error('Error fetching match data:', error);
+    }
+}
+
+async function fetchPlayerData() {
+    try {
+        const response = await fetch('http://localhost:8000/api/players/',
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'applications/json',
+                    'Authorization': `Bearer ${authStore.token}`
+                }
+            }
+        )
+
+        const data = await response.json();
+        players_count.value = data.count;
+
+    } catch (error) {
+        console.error('Error fetching player data:', error);
+    }
+}
+
+
+
+async function refresh() {
+    await fetchTournamentData();
+    await fetchPlayerData();
+    await fetchMatchdata();
+}
+
+onMounted(() => {
+    refresh();
+})
 
 
 </script>
@@ -110,19 +187,28 @@ const full_name = authStore.full_name.split(' ')[0] || 'User'
     .dashboard {
         display: flex;
         width: 100%;
-        height: 100%;
+        max-height: 100%;
         gap: 0;
+        /* overflow-y: hidden; */
         /* border: 2px solid red; */
     }
 
     .sidebar-container {
         width: 5rem;
-        height: 100%;
+        position: sticky;
+        left: 0;
+        top: 0;
+        background-color: black;
+        z-index: 10;
+        /* height: 100vh; */
         /* border: 2px solid blue; */
     }
 
     .sidebar {
-        position: fixed;
+        height: 100%;
+        position: sticky;
+        left: 0;
+        top: 0;
         z-index: 999;
         background-color: black;
         /* border: 2px solid red; */
@@ -130,31 +216,31 @@ const full_name = authStore.full_name.split(' ')[0] || 'User'
 
     .content {
         flex: 1;
-        padding: 20px;
+        padding: 2rem;
         display: flex;
         flex-direction: column;
         border-radius: 14px;
-        padding: 24px;
         height: 100%;
         /* background: linear-gradient(180deg, rgba(8, 98, 9, 0.12), rgba(8, 98, 9, 0.04)); */
         /* border: 1px solid rgba(8, 98, 9, 0.25); */
         /* box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); */
         /* border: 2px solid lime; */
         gap: 2rem;
+        /* account for the fixed sidebar so content doesn't sit under it */
+        /* margin-left: rem; */
     }
 
     .head {
-        font-size: 1.8rem;
+        font-size: clamp(1.2rem, 2.5vw, 1.8rem);
         font-weight: 600;
         color: #b9e2a7;
-        /* border: 1px dashed lime; */
     }
 
     /* ----------- CARDS ----------- */
     .cards {
         width: 100%;
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 1rem;
     }
     
@@ -182,12 +268,11 @@ const full_name = authStore.full_name.split(' ')[0] || 'User'
     }
 
     .big {
-        font-size: 5rem;
+        font-size: clamp(2rem, 6vw, 5rem);
         font-weight: 700;
         line-height: 1;
         color: #ffffff;
         width: 100%;
-        /* text-align: center; */
     }
 
     .small {
@@ -252,6 +337,8 @@ const full_name = authStore.full_name.split(' ')[0] || 'User'
         transition: transform 0.2s ease, border-color 0.2s ease;
         cursor: pointer;
         text-decoration: none;
+        /* allow horizontal scrolling for wide tables on small screens */
+        overflow-x: auto;
     }
 
     .tournament-list:hover {
@@ -273,6 +360,21 @@ const full_name = authStore.full_name.split(' ')[0] || 'User'
         margin-top: 0.75rem;
         padding: 0.5rem;
         /* border: 2px dashed lime; */
+    }
+
+    /* ensure table content can scroll on narrow viewports */
+    @media (max-width: 900px) {
+        .content { margin-left: 3.5rem; }
+        .sidebar-container { width: 3.5rem; }
+        .sidebar { left: 0; }
+    }
+
+    @media (max-width: 650px) {
+        .content { margin-left: 0; padding: 16px; }
+        .sidebar { position: relative; width: 100%; height: auto; z-index: 2; }
+        /* .sidebar-container { display: none; } */
+        .tournament-list { padding: 0.75rem; }
+        .item-teams { display: block; overflow-x: auto; }
     }
     
     .item-teams-head-row {
@@ -301,6 +403,10 @@ const full_name = authStore.full_name.split(' ')[0] || 'User'
     }
 
     @media (max-width: 1000px) {
+        .content {
+            padding: 0;
+        }
+
         .section-head::before {
             display: none;
         }
@@ -325,9 +431,12 @@ const full_name = authStore.full_name.split(' ')[0] || 'User'
 
     }
 
-    @media (max-width: 650px) {
+    @media (max-width: 700px) {
         .cards {
             display: none;
+        }
+        .dashboard {
+            overflow: scroll;
         }
     }
 
